@@ -2,7 +2,7 @@
 
 This repository is my learning project for Python & cybersecurity.
 The goal is to build a **fake FTP service honeypot** that:
-
+[]
 - Accepts connections like a normal FTP server
 - Captures attacker IPs, usernames and passwords
 - Logs everything to a file
@@ -80,3 +80,14 @@ The basic steps (on my local machine):
 ```bash
 # Inside project folder
 python3 honeypot.py
+
+
+## Step 2: Port Scan Detection (Planning Stage)
+
+I created a file called `port_scanner.py` where we will build the logic
+with my tutor. For now it only contains TODOs and structure.
+
+Goal:
+- detect basic port scan activity
+- log attacker IP + ports
+- later connect this to the email alert system
