@@ -1,0 +1,84 @@
+PROJECT GOALS – FAKE FTP HONEYPOT
+
+1. I want to create a Fake FTP Honeypot in Python.
+2. I want to capture:
+   - attacker login attempts
+   - attacker IP addresses
+   - usernames and passwords used
+   
+3. I want to understand:
+   - how FTP authentication works
+   - how honeypots trick attackers
+   - how logging works in Python
+
+4. I want to learn:
+   - how to use pyftpdlib
+   - how to structure a Python server script
+   - how to store logs in a file
+
+5. Optional future goals:
+   - fake directory listing
+   - fake FTP commands
+   - email alert when someone logs in
+
+
+
+   FAKE FTP HONEYPOT – FULL ARCHITECTURE (STEP 1)
+
+            ┌──────────────────────────────┐
+            │        ATTACKER / BOT        │
+            │  (scanner, brute-forcer)     │
+            └──────────────┬───────────────┘
+                           │  Connects to FTP
+                           ▼
+               ftp://your-ip:2121 (fake service)
+                           │
+                           ▼
+         ┌────────────────────────────────────┐
+         │        FAKE FTP SERVER (Python)    │
+         │              honeypot.py           │
+         ├────────────────────────────────────┤
+         │ 1. Accept connection               │
+         │ 2. Capture IP                      │
+         │ 3. Capture USER/PASS               │
+         │ 4. Log everything                  │
+         │ 5. Trigger EMAIL ALERT             │
+         └───────────┬────────────────────────┘
+                     │
+   Attacker data:    │
+   - IP address       │
+   - Username used    │
+   - Password used    │
+   - Timestamp        │
+                     ▼
+         ┌────────────────────────────────────┐
+         │          LOGGING MODULE             │
+         │      (Python logging module)        │
+         ├────────────────────────────────────┤
+         │ Writes entries to honeypot.log      │
+         │ Example:                             │
+         │ 2025-02-26 12:41                     │
+         │ IP 185.23.44.11 USER root PASS 1234  │
+         └────────────────────────────────────┘
+                     │
+                     ▼
+         ┌────────────────────────────────────┐
+         │           LOG FILE                  │
+         │            honeypot.log             │
+         └────────────────────────────────────┘
+                     │
+                     ▼
+         ┌────────────────────────────────────┐
+         │         EMAIL REPORTER              │
+         │           smtplib / TLS             │
+         ├────────────────────────────────────┤
+         │ Formats email:                      │
+         │ "Honeypot alert: Login attempt"     │
+         │ Sends to your email address         │
+         └────────────────────────────────────┘
+                     │
+                     ▼
+         ┌────────────────────────────────────┐
+         │          YOUR EMAIL INBOX          │
+         │  (Gmail / Outlook / Hotmail etc.)   │
+         └────────────────────────────────────┘
