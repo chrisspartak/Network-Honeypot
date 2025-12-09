@@ -5,7 +5,7 @@ PROJECT GOALS – FAKE FTP HONEYPOT
    - attacker login attempts
    - attacker IP addresses
    - usernames and passwords used
-   
+
 3. I want to understand:
    - how FTP authentication works
    - how honeypots trick attackers
@@ -82,3 +82,66 @@ PROJECT GOALS – FAKE FTP HONEYPOT
          │          YOUR EMAIL INBOX          │
          │  (Gmail / Outlook / Hotmail etc.)   │
          └────────────────────────────────────┘
+
+
+         ------------------------------------------------------
+STEP 2 – Nmap Scan Detection Architecture Diagram
+------------------------------------------------------
+
+ ┌─────────────────────────────┐
+                    │       ATTACKER / BOT         │
+                    │  Runs Nmap or Masscan scan   │
+                    │                               │
+                    │  Examples:                    │
+                    │    nmap <your-ip>             │
+                    │    nmap -sV <your-ip>         │
+                    │    nmap -p- <your-ip>         │
+                    │    masscan <your-ip> -p1-65535│
+                    └───────────────┬───────────────┘
+                                    │
+                             Scan packets hit
+                                    │
+                                    ▼
+                   ┌──────────────────────────────────┐
+                   │   HONEYPOT LISTENING ON PORTS    │
+                   │ (Fake services + scan detection)  │
+                   ├──────────────────────────────────┤
+                   │ 21  → Fake FTP service            │
+                   │ 22  → (Optional) Fake SSH banner  │
+                   │ 80  → (Optional) Fake HTTP server │
+                   │ ANY OTHER PORT → Scan detected    │
+                   └──────────────┬───────────────────┘
+                                  │
+                      Captured information:
+                    • Source IP address
+                    • Ports touched / scanned
+                    • Timestamp of scan
+                    • Scan pattern (fast/slow/burst)
+                    • Attempt type (SYN scan, version scan)
+                                  │
+                                  ▼
+                   ┌──────────────────────────────────┐
+                   │      port_scanner.py MODULE      │
+                   ├──────────────────────────────────┤
+                   │ - Logs scan attempts             │
+                   │ - Categorizes scan behavior      │
+                   │ - Writes to scan.log             │
+                   │ - Sends data to honeypot core    │
+                   └──────────────┬───────────────────┘
+                                  │
+                                  ▼
+                   ┌──────────────────────────────────┐
+                   │            scan.log               │
+                   ├──────────────────────────────────┤
+                   │ Example:                          │
+                   │ 2025-02-27 12:55                  │
+                   │ IP 185.44.23.19 scanned ports     │
+                   │ [21, 22, 80, 443, 8080]           │
+                   │ Pattern: Sequential FAST          │
+                   └──────────────┬───────────────────┘
+                                  │
+                                  ▼
+                   ┌──────────────────────────────────┐
+                   │         EMAIL ALERT (Step 3)      │
+                   │  Sends scan summary to your inbox │
+                   └──────────────────────────────────┘
